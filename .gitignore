@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Configuration and secrets
+config/
+.env
+
+# Data files
+data/
+
+# Logs
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# PyCharm project settings (선택적으로 포함)
+.idea/
+
+# pytest cache
+.pytest_cache/
+
+# VSCode settings (선택적으로 포함)
+.vscode/
