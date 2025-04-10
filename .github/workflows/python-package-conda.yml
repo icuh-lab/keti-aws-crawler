@@ -44,21 +44,38 @@ jobs:
         aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} \
         --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
+    - name: SSH to EC2 and run project
+      env:
+        SSH_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+      run: |
+        echo "$SSH_KEY" > key.pem
+        chmod 400 key.pem
+    
+        ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.SSH_EC2_USER }}@${{ secrets.SSH_EC2_HOST }} << 'EOF'
+          cd /home/ubuntu
+    
+          # 최신 코드 가져오기
+          git pull origin main
+    
+          # 프로젝트 디렉토리로 이동
+          cd keti-aws-crawler
+
+          source ~/anaconda3/etc/profile.d/conda.sh
+          conda activate keti_aws_crawler
+          
+          pip install -r requirements.txt  
+    
+          # 환경변수 수동 주입 및 실행
+          export ENV=prod
+
+          if [ "$ENV" = "prod" ]; then
+            export SSH_PRIVATE_KEY="${{ secrets.SSH_PRIVATE_KEY }}"
+          fi
+          
+          ENV=prod python src/main.py
+        EOF
+
     - name: Remove GitHub Actions IP from Security Group
       run: |
         aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} \
         --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
-
-    # - name: Deploy to EC2
-    #   run: |
-    #     echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > key.pem
-    #     chmod 600 key.pem
-    #     ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-3-37-105-126.ap-northeast-2.compute.amazonaws.com << EOF
-    #       export SSH_PRIVATE_KEY="${{ secrets.SSH_PRIVATE_KEY }}"
-    #       # export APP_ENV="${{ secrets.APP_ENV }}"
-    #       cd /home/ubuntu
-    #       git pull origin main
-    #       cd keti-aws-crawler
-    #       conda activate keti_aws_crawler
-    #       python ENV=prod src/main.py
-    #     EOF
