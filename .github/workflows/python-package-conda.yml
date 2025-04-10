@@ -1,0 +1,81 @@
+name: keti-aws-crawler workflow
+
+on: [push]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.12'
+        
+    - name: Add conda to system path
+      run: |
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        echo $CONDA/bin >> $GITHUB_PATH
+        
+    - name: Lint with flake8
+      run: |
+        conda install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        
+    - name: Get GitHub Actions IP
+      id: ip
+      uses: haythem/public-ip@v1.2
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2
+
+    - name: Add GitHub Actions IP to Security Group
+      run: |
+        aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} \
+        --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+    - name: SSH to EC2 and run project
+      env:
+        SSH_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+      run: |
+        echo "$SSH_KEY" > key.pem
+        chmod 400 key.pem
+    
+        ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.SSH_EC2_USER }}@${{ secrets.SSH_EC2_HOST }} << 'EOF'
+          cd /home/ubuntu
+    
+          # 최신 코드 가져오기
+          git pull origin main
+    
+          # 프로젝트 디렉토리로 이동
+          cd keti-aws-crawler
+
+          source ~/anaconda3/etc/profile.d/conda.sh
+          conda activate keti_aws_crawler
+          
+          pip install -r requirements.txt  
+    
+          # 환경변수 수동 주입 및 실행
+          export ENV=prod
+
+          if [ "$ENV" = "prod" ]; then
+            export SSH_PRIVATE_KEY="${{ secrets.SSH_PRIVATE_KEY }}"
+          fi
+          
+          ENV=prod python src/main.py
+        EOF
+
+    - name: Remove GitHub Actions IP from Security Group
+      run: |
+        aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} \
+        --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
