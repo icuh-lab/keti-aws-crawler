@@ -20,6 +20,7 @@ dependencies:
   - idna=3.7
   - libcxx=14.0.6
   - libffi=3.4.4
+  - libgfortran=5.0.0
   - libgfortran5=11.3.0
   - libopenblas=0.3.21
   - libsodium=1.0.18
