@@ -4,7 +4,6 @@ import requests
 
 from sqlalchemy import create_engine
 from sshtunnel import SSHTunnelForwarder
-from datetime import datetime
 
 # -----------------------------
 # 기능 함수
@@ -65,32 +64,4 @@ def insert_to_db(df, db_config, ssh_config):
     )
     df.to_sql(name="KETI_BASE_TB", con=engine, if_exists="append", index=False)
     tunnel.close()
-
-
-# -----------------------------
-# 스케줄러에 등록할 메인 작업
-# -----------------------------
-
-def get_data_from_api():
-  try:
-    print(f"[{datetime.now()}] API 호출 및 DB 적재 실행")
-    response = get_api_data()
-    df = parse_api_response(response)
-
-    if not df.empty:
-      insert_to_db(df)
-      print(f"[{datetime.now()}] 데이터 저장 완료")
-    else:
-      print(f"[{datetime.now()}] 데이터 없음")
-
-  except Exception as e:
-    print(f"[{datetime.now()}] 호출하고 저장하는 과정에서 오류 발생: {e}")
-
-
-def main():
-  print(f"[{datetime.now()}] 스케줄러 시작")
-  get_data_from_api()
-
-if __name__ == "__main__":
-  main()
 
