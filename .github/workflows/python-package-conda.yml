@@ -39,7 +39,7 @@ jobs:
         activate-environment: keti_aws_crawler
         environment-file: environment.yml
         auto-activate-base: false
-        use-only-tar-bz2: true
+        use-only-tar-bz2: false
         cache-environment: true
 
     # 6. Python 환경 구성 (flake8은 Conda env 이후 설치 추천)
