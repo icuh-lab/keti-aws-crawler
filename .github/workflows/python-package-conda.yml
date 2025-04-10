@@ -72,14 +72,14 @@ jobs:
           echo "[info] Conda 환경 구성 중..."
           source ~/anaconda3/etc/profile.d/conda.sh
     
-          # 환경이 없으면 생성, 있으면 업데이트
+          # 기존 환경 제거 후 새로 생성 (메모리 이슈 피하기 위함)
           if conda info --envs | grep -q keti_aws_crawler; then
-            echo "[info] 기존 환경 업데이트"
-            conda env update --name keti_aws_crawler --file environment.yml --prune
-          else
-            echo "[info] 환경 새로 생성"
-            conda env create --name keti_aws_crawler --file environment.yml
+            echo "[info] 기존 환경 제거"
+            conda env remove -n keti_aws_crawler
           fi
+
+          echo "[info] 환경 새로 생성"
+          conda env create --name keti_aws_crawler --file environment.yml
           
           # 환경변수 수동 주입 및 실행
           export ENV=prod
