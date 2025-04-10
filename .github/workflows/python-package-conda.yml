@@ -72,13 +72,7 @@ jobs:
           cd keti-aws-crawler
           source ~/anaconda3/etc/profile.d/conda.sh
 
-          if conda info --envs | grep -q keti_aws_crawler; then
-            echo "[info] 환경 업데이트"
-            conda env update --name keti_aws_crawler --file environment.yml --prune
-          else
-            echo "[info] 환경 생성"
-            conda env create --name keti_aws_crawler --file environment.yml
-          fi
+          conda env create --name keti_aws_crawler --file environment.yml
 
           export ENV=prod
           export SSH_PRIVATE_KEY="${{ secrets.SSH_PRIVATE_KEY }}"
