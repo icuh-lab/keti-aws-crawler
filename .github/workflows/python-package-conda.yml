@@ -68,13 +68,20 @@ jobs:
           cd keti-aws-crawler
 
           # 시스템 패키지 설치
+          echo "[info] 필수 시스템 패키지 설치"
           sudo apt-get update && sudo apt-get install -y \
             build-essential libffi-dev python3-dev libyaml-dev
-
-          # Conda 환경 로딩 및 의존성 설치
+    
+          # Conda 환경 로딩 및 pip 의존성 설치
+          echo "[info] Conda 환경 활성화 및 패키지 설치"
           source ~/anaconda3/etc/profile.d/conda.sh
-          conda run -n keti_aws_crawler pip install --upgrade pip setuptools wheel
-          conda run -n keti_aws_crawler pip install -r requirements.txt
+          conda activate keti_aws_crawler
+    
+          pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt || { echo '[ERROR] requirements 설치 실패'; exit 1; }
+    
+          echo "[info] 설치된 주요 패키지 확인:"
+          pip list | grep -E 'PyYAML|bcrypt'
           
           # 환경변수 수동 주입 및 실행
           export ENV=prod
