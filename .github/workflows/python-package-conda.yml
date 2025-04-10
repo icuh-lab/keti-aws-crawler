@@ -57,7 +57,7 @@ jobs:
           # 디렉토리가 없으면 git clone, 있으면 git pull
           if [ ! -d "keti-aws-crawler/.git" ]; then
             echo "[info] 프로젝트가 없어서 git clone 실행"
-            git clone https://github.com/YOUR_ORG/keti-aws-crawler.git
+            git clone https://${{ secrets.GH_PAT }}@github.com/icuh-lab/keti-aws-crawler.git
           else
             echo "[info] 프로젝트가 존재하므로 git pull 실행"
             cd keti-aws-crawler
