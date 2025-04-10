@@ -70,8 +70,6 @@ jobs:
           source ~/anaconda3/etc/profile.d/conda.sh
           conda run -n keti_aws_crawler pip install -r requirements.txt
           
-          pip install -r requirements.txt  
-    
           # 환경변수 수동 주입 및 실행
           export ENV=prod
 
@@ -79,7 +77,8 @@ jobs:
             export SSH_PRIVATE_KEY="${{ secrets.SSH_PRIVATE_KEY }}"
           fi
           
-          ENV=prod python src/main.py
+          conda run -n keti_aws_crawler ENV=prod python src/main.py
+          
         EOF
 
     - name: Remove GitHub Actions IP from Security Group
