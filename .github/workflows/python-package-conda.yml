@@ -68,7 +68,7 @@ jobs:
           cd keti-aws-crawler
 
           source ~/anaconda3/etc/profile.d/conda.sh
-          conda activate keti_aws_crawler
+          conda run -n keti_aws_crawler pip install -r requirements.txt
           
           pip install -r requirements.txt  
     
