@@ -14,13 +14,16 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.12'
+        
     - name: Add conda to system path
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA/bin >> $GITHUB_PATH
+        
     - name: Install dependencies
       run: |
         conda env update --file environment.yml --name base
+        
     - name: Lint with flake8
       run: |
         conda install flake8
@@ -28,7 +31,21 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
+        
+    - name: Run tests with pytest
       run: |
         conda install pytest
         pytest
+
+    - name: Deploy to EC2
+      run: |
+        echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > key.pem
+        chmod 600 key.pem
+        ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-3-37-105-126.ap-northeast-2.compute.amazonaws.com << EOF
+          export SSH_PRIVATE_KEY="${{ secrets.SSH_PRIVATE_KEY }}"
+          export APP_ENV="${{ secrets.APP_ENV }}"
+          cd /home/ubuntu/keti-aws-crawler
+          git pull origin main
+          conda activate base
+          python3 src/main.py
+        EOF
