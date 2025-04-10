@@ -67,18 +67,18 @@ jobs:
     
           # 프로젝트 디렉토리로 이동
           cd keti-aws-crawler
-
-          echo "[info] 스왑 메모리 생성 중"
-          sudo fallocate -l 2G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
           
           echo "[info] Conda 환경 구성 중"
           source ~/anaconda3/etc/profile.d/conda.sh
-          
-          conda env remove -n keti_aws_crawler || echo "환경 없음, 무시"
-          conda env create -n keti_aws_crawler -f environment.yml
+
+          # 환경이 없으면 생성, 있으면 업데이트
+          if conda info --envs | grep -q keti_aws_crawler; then
+            echo "[info] 기존 환경 업데이트"
+            conda env update --name keti_aws_crawler --file environment.yml --prune
+          else
+            echo "[info] 환경 새로 생성"
+            conda env create --name keti_aws_crawler --file environment.yml
+          fi
           
           # 환경변수 수동 주입 및 실행
           export ENV=prod
