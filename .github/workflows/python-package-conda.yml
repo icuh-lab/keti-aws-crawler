@@ -39,6 +39,16 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-northeast-2
 
+    - name: Add GitHub Actions IP to Security Group
+      run: |
+        aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} \
+        --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+    - name: Remove GitHub Actions IP from Security Group
+      run: |
+        aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} \
+        --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
     # - name: Deploy to EC2
     #   run: |
     #     echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > key.pem
