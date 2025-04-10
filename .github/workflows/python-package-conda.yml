@@ -62,6 +62,7 @@ jobs:
             echo "[info] 프로젝트가 존재하므로 git pull 실행"
             cd keti-aws-crawler
             git pull origin main
+            cd ..
           fi
     
           # 프로젝트 디렉토리로 이동
