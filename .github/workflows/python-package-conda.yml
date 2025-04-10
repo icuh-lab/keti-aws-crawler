@@ -20,10 +20,6 @@ jobs:
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA/bin >> $GITHUB_PATH
         
-    - name: Install dependencies
-      run: |
-        conda env update --file environment.yml --name base
-        
     - name: Lint with flake8
       run: |
         conda install flake8
@@ -43,9 +39,10 @@ jobs:
         chmod 600 key.pem
         ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@ec2-3-37-105-126.ap-northeast-2.compute.amazonaws.com << EOF
           export SSH_PRIVATE_KEY="${{ secrets.SSH_PRIVATE_KEY }}"
-          export APP_ENV="${{ secrets.APP_ENV }}"
-          cd /home/ubuntu/keti-aws-crawler
+          # export APP_ENV="${{ secrets.APP_ENV }}"
+          cd /home/ubuntu
           git pull origin main
-          conda activate base
-          python3 src/main.py
+          cd keti-aws-crawler
+          conda activate keti_aws_crawler
+          python ENV=prod src/main.py
         EOF
