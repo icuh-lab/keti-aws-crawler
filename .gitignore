@@ -12,7 +12,6 @@ env/
 venv/
 
 # Configuration and secrets
-config/
 .env
 
 # Data files
