@@ -67,7 +67,13 @@ jobs:
           # 프로젝트 디렉토리로 이동
           cd keti-aws-crawler
 
+          # 시스템 패키지 설치
+          sudo apt-get update && sudo apt-get install -y \
+            build-essential libffi-dev python3-dev libyaml-dev
+
+          # Conda 환경 로딩 및 의존성 설치
           source ~/anaconda3/etc/profile.d/conda.sh
+          conda run -n keti_aws_crawler pip install --upgrade pip setuptools wheel
           conda run -n keti_aws_crawler pip install -r requirements.txt
           
           # 환경변수 수동 주입 및 실행
