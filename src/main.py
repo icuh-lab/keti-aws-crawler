@@ -1,9 +1,10 @@
 from datetime import datetime
 
-from utils.helpers import load_config
+from utils.helpers import load_env, load_config
 from crawler.aws_crawler import get_api_data, parse_api_response, insert_to_db
 
 def main():
+    load_env()
     config = load_config()
 
     try:
