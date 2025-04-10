@@ -33,3 +33,6 @@ Thumbs.db
 
 # VSCode settings (선택적으로 포함)
 .vscode/
+
+# env 파일
+.env*
