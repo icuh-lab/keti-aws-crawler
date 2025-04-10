@@ -44,6 +44,16 @@ jobs:
         aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} \
         --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
+
+    - name: Set up Conda with caching
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        activate-environment: keti_aws_crawler
+        environment-file: environment.yml
+        auto-activate-base: false
+        use-only-tar-bz2: true
+        cache-environment: true
+
     - name: SSH to EC2 and run project
       env:
         SSH_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
