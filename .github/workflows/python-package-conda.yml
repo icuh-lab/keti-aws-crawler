@@ -54,17 +54,28 @@ jobs:
         ssh -i key.pem -o StrictHostKeyChecking=no ${{ secrets.SSH_EC2_USER }}@${{ secrets.SSH_EC2_HOST }} << 'EOF'
           cd /home/ubuntu
     
-          # 최신 코드 가져오기
-          git pull origin main
+          # 디렉토리가 없으면 git clone, 있으면 git pull
+          if [ ! -d "keti-aws-crawler/.git" ]; then
+            echo "[info] 프로젝트가 없어서 git clone 실행"
+            git clone https://${{ secrets.GH_PAT }}@github.com/icuh-lab/keti-aws-crawler.git
+          else
+            echo "[info] 프로젝트가 존재하므로 git pull 실행"
+            cd keti-aws-crawler
+            git pull origin main
+          fi
     
           # 프로젝트 디렉토리로 이동
           cd keti-aws-crawler
 
+          # 시스템 패키지 설치
+          sudo apt-get update && sudo apt-get install -y \
+            build-essential libffi-dev python3-dev libyaml-dev
+
+          # Conda 환경 로딩 및 의존성 설치
           source ~/anaconda3/etc/profile.d/conda.sh
-          conda activate keti_aws_crawler
+          conda run -n keti_aws_crawler pip install --upgrade pip setuptools wheel
+          conda run -n keti_aws_crawler pip install -r requirements.txt
           
-          pip install -r requirements.txt  
-    
           # 환경변수 수동 주입 및 실행
           export ENV=prod
 
@@ -72,7 +83,8 @@ jobs:
             export SSH_PRIVATE_KEY="${{ secrets.SSH_PRIVATE_KEY }}"
           fi
           
-          ENV=prod python src/main.py
+          conda run -n keti_aws_crawler ENV=prod python src/main.py
+          
         EOF
 
     - name: Remove GitHub Actions IP from Security Group
