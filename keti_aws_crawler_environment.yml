@@ -18,6 +18,10 @@ dependencies:
   - expat=2.6.4
   - greenlet=3.1.1
   - idna=3.7
+  - libcxx=14.0.6
+  - libffi=3.4.4
+  - libgfortran5=11.3.0
+  - libopenblas=0.3.21
   - libsodium=1.0.18
   - llvm-openmp=14.0.6
   - ncurses=6.4
@@ -54,4 +58,3 @@ dependencies:
   - xz=5.6.4
   - yaml=0.2.5
   - zlib=1.2.13
-prefix: /opt/anaconda3/envs/keti_aws_crawler
