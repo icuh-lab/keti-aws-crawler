@@ -3,11 +3,11 @@ from datetime import datetime
 
 import yaml
 
-from crawler.aws_crawler import get_api_data, parse_api_response, insert_to_db
+from parser.json_timeseries_parser import get_api_data, parse_api_response, insert_to_db
 
 
 def load_config():
-    # 1순위: 환경변수에서 프로젝트 루트 경로 가져오기
+    # 환경변수에서 프로젝트 루트 경로 가져오기
     project_root = os.getenv("PROJECT_DIR")
 
     if not project_root:
