@@ -5,21 +5,30 @@ import yaml
 
 from parser.json_timeseries_parser import get_api_data, parse_api_response, insert_to_db
 
-
-def load_config():
+def get_project_root():
     # 환경변수에서 프로젝트 루트 경로 가져오기
     project_root = os.getenv("PROJECT_DIR")
 
     if not project_root:
         project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 
-    config_path = os.path.join(project_root, "config/config.yaml")
+    return project_root
+
+
+def set_default_config():
+    config_path = os.path.join(get_project_root(), "config/config.yaml")
 
     if not os.path.exists(config_path):
         raise FileNotFoundError(f"[ERROR] config.yaml not found at {config_path}")
 
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
+
+    return config
+
+def load_total_config():
+
+    config = set_default_config()
 
     # 환경변수에서 ssh_private_key 추가 (없으면 None)
     # 환경변수로 로컬/서버 환경 구분
@@ -33,11 +42,12 @@ def load_config():
 
     return config
 
-def process_data(config: dict):
+def call_keti_aws_api(config: dict):
     """API 호출 및 DB 적재를 처리하는 함수"""
     try:
         print(f"[{datetime.now()}] API 호출 및 DB 적재 실행")
-        
+
+        # TODO: load_total_config랑 내용이 겹침
         # 환경에 따른 SSH 키 경로 설정
         env = os.getenv("ENVIRONMENT", "local")
         if env == "prod":
@@ -66,8 +76,8 @@ def process_data(config: dict):
         print(f"[{datetime.now()}] 오류 발생: {e}")
 
 def main():
-    config = load_config()
-    process_data(config)
+    config = load_total_config()
+    call_keti_aws_api(config)
 
 
 if __name__ == "__main__":
