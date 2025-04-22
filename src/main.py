@@ -33,10 +33,22 @@ def load_config():
 
     return config
 
-def process_data(config: dict, pem_temp_path: str):
+def process_data(config: dict):
     """API 호출 및 DB 적재를 처리하는 함수"""
     try:
         print(f"[{datetime.now()}] API 호출 및 DB 적재 실행")
+        
+        # 환경에 따른 SSH 키 경로 설정
+        env = os.getenv("ENVIRONMENT", "local")
+        if env == "prod":
+            pem_temp_path = "/tmp/icuh.pem"
+        else:
+            pem_temp_path = config["ssh"]["ssh_private_key"]
+            if not pem_temp_path:
+                raise ValueError("로컬 환경에서는 SSH_PRIVATE_KEY 환경변수 또는 config.yaml에 ssh_private_key가 필요합니다.")
+        
+        os.chmod(pem_temp_path, 0o600)
+        
         response = get_api_data(
             url=config['api']['url'],
             params=config['api']['params'],
@@ -55,21 +67,7 @@ def process_data(config: dict, pem_temp_path: str):
 
 def main():
     config = load_config()
-
-    # 환경 변수로 로컬/서버 환경 구분
-    # 환경변수가 없으면 기본값은 local
-    env = os.getenv("ENVIRONMENT", "local")
-
-    if env == "prod":
-        pem_temp_path = "/tmp/icuh.pem"
-    else:
-        # local 환경
-        # config에서 설정된 SSH 키 경로 사용
-        pem_temp_path = config["ssh"]["ssh_private_key"]
-
-    os.chmod(pem_temp_path, 0o600)
-
-    process_data(config, pem_temp_path)
+    process_data(config)
 
 
 if __name__ == "__main__":
