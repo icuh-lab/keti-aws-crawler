@@ -65,6 +65,7 @@ jobs:
             git pull origin main
           fi
         
+          pwd
           cd keti-aws-crawler
         
           # 실행 권한 부여 및 스크립트 시작
