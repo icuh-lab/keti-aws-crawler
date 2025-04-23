@@ -3,7 +3,7 @@
 # === 경로 설정 ===
 export PROJECT_DIR="/home/ubuntu/keti-aws-crawler"
 
-ENV_NAME="keti-aws-crawler"
+ENV_NAME="keti_aws_crawler"
 LOG_FILE="/home/ubuntu/keti-aws-crawler/logs"
 ENV_YML="$PROJECT_DIR/keti_aws_crawler_environment.yml"
 CONFIG_PATH="$PROJECT_DIR/config/config.yaml"
