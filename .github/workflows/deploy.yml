@@ -61,7 +61,6 @@ jobs:
             git clone https://${{ secrets.GITHUB_USER }}:${{ secrets.GH_PAT }}@github.com/icuh-lab/keti-aws-crawler.git
           else
             echo "[INFO] Repository exists. Pulling latest changes..."
-            cd keti-aws-crawler
             git pull origin main
           fi
     
