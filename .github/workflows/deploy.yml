@@ -59,14 +59,11 @@ jobs:
           if [ ! -d "keti-aws-crawler" ]; then
             echo "[INFO] Repository not found. Cloning..."
             git clone https://${{ secrets.GITHUB_USER }}:${{ secrets.GH_PAT }}@github.com/icuh-lab/keti-aws-crawler.git
-          else
-            echo "[INFO] Repository exists. Pulling latest changes..."
-            cd keti-aws-crawler
-            git pull origin main
           fi
         
-          pwd
+          # ✅ 조건문 바깥에서 무조건 진입
           cd keti-aws-crawler
+          git pull origin main || true  # clone 했으면 pull 필요 없음
         
           # 실행 권한 부여 및 스크립트 시작
           chmod +x run_main.sh
