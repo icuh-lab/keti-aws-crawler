@@ -44,18 +44,6 @@ def call_keti_aws_api(config: dict):
     try:
         print(f"[{datetime.now()}] API 호출 및 DB 적재 실행")
 
-        # TODO: load_total_config랑 내용이 겹침
-        # 환경에 따른 SSH 키 경로 설정
-        env = os.getenv("ENVIRONMENT", "local")
-        if env == "prod":
-            pem_temp_path = "/tmp/icuh.pem"
-        else:
-            pem_temp_path = config["ssh"]["ssh_private_key"]
-            if not pem_temp_path:
-                raise ValueError("로컬 환경에서는 SSH_PRIVATE_KEY 환경변수 또는 config.yaml에 ssh_private_key가 필요합니다.")
-
-        os.chmod(pem_temp_path, 0o600)
-
         response = get_api_data(
             url=config['api']['url'],
             params=config['api']['params'],
