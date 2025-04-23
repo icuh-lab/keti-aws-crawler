@@ -22,5 +22,5 @@ def main():
 
 
 if __name__ == "__main__":
-    print(f"[{datetime.now()}] KETI-AWS-DB 적재")
+    print(f"[{datetime.now()}] KETI-AWS-DB 크롤러 시작")
     main()
