@@ -64,7 +64,8 @@ jobs:
           cd keti-aws-crawler
           git pull origin main
         
-          # 실행 권한 부여 및 스크립트 시작  
+          # 실행 권한 부여 및 스크립트 시작
+          chmod +x run_main.sh
           ./run_main.sh
 
     - name: Remove GitHub Actions IP from Security Group
