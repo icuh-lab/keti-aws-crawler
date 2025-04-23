@@ -1,9 +1,10 @@
+import os
 import pandas as pd
 import pytz
 import requests
 
-from sqlalchemy import create_engine
-from sshtunnel import SSHTunnelForwarder
+from datetime import datetime
+from src.utils.insert_db import insert_to_db
 
 # -----------------------------
 # 기능 함수
@@ -38,30 +39,35 @@ def parse_api_response(response):
     return pd.DataFrame(data)
 
 
-# ssh 연결
-def connect_ssh_tunnel(ssh_config):
-    tunnel = SSHTunnelForwarder(
-        (ssh_config['ssh_host'], ssh_config['ssh_port']),
-        ssh_username=ssh_config['ssh_username'],
-        ssh_private_key=ssh_config['ssh_private_key'],
-        remote_bind_address=(
-            ssh_config['remote_bind_address']['host'],
-            ssh_config['remote_bind_address']['port']
-        ),
-        local_bind_address=(
-            ssh_config['local_bind_address']['host'],
-            ssh_config['local_bind_address']['port']
+def call_keti_aws_api(config: dict):
+    """API 호출 및 DB 적재를 처리하는 함수"""
+    try:
+        print(f"[{datetime.now()}] API 호출 및 DB 적재 실행")
+
+        # TODO: load_total_config랑 내용이 겹침
+        # 환경에 따른 SSH 키 경로 설정
+        env = os.getenv("ENVIRONMENT", "local")
+        if env == "prod":
+            pem_temp_path = "/tmp/icuh.pem"
+        else:
+            pem_temp_path = config["ssh"]["ssh_private_key"]
+            if not pem_temp_path:
+                raise ValueError("로컬 환경에서는 SSH_PRIVATE_KEY 환경변수 또는 config.yaml에 ssh_private_key가 필요합니다.")
+
+        os.chmod(pem_temp_path, 0o600)
+
+        response = get_api_data(
+            url=config['api']['url'],
+            params=config['api']['params'],
+            headers=config['api']['headers']
         )
-    )
-    tunnel.start()
-    return tunnel
+        df = parse_api_response(response)
 
+        if not df.empty:
+            insert_to_db(df, db_config=config['database'], ssh_config=config['ssh'])
+            print(f"[{datetime.now()}] 데이터 저장 완료")
+        else:
+            print(f"[{datetime.now()}] 데이터 없음")
 
-def insert_to_db(df, db_config, ssh_config):
-    tunnel = connect_ssh_tunnel(ssh_config)
-    engine = create_engine(
-        f"mysql+pymysql://{db_config['user']}:{db_config['password']}@127.0.0.1:{ssh_config['local_bind_address']['port']}/{db_config['name']}"
-    )
-    df.to_sql(name="KETI_BASE_TB", con=engine, if_exists="append", index=False)
-    tunnel.close()
-
+    except Exception as e:
+        print(f"[{datetime.now()}] 오류 발생: {e}")
