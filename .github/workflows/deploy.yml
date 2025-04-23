@@ -68,8 +68,9 @@ jobs:
           git pull origin main || true
         
           # 실행 권한 부여 및 스크립트 시작
-          chmod u+x run_main.sh
-          ./run_main.sh
+          chmod u+x run_main.sh || { echo "chmod failed"; exit 1; }
+          ./run_main.sh || { echo "Script failed"; exit 1; }
+
 
     - name: Remove GitHub Actions IP from Security Group
       run: |
