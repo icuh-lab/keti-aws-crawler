@@ -35,7 +35,7 @@ conda activate "$ENV_NAME"
 
 # === 파이썬 스크립트 실행 ===
 cd "$PROJECT_DIR"
-ENVIRONMENT="prod" python src/main.py >> "$LOG_FILE" 2>&1
+python src/main.py >> "$LOG_FILE" 2>&1
 
 # === 로그 종료 ===
 echo "[$(date)] 스크립트 실행 완료" >> "$LOG_FILE"
