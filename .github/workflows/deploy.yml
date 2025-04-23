@@ -66,8 +66,7 @@ jobs:
             git pull origin main
           fi
         
-          # 실행 권한 부여 및 스크립트 시작
-          chmod +x run_main.sh  
+          # 실행 권한 부여 및 스크립트 시작  
           ./run_main.sh
 
     - name: Remove GitHub Actions IP from Security Group
